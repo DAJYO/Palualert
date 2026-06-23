@@ -1,0 +1,12 @@
+# Configuration Streamlit (locale et Streamlit Community Cloud)
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+primaryColor = "#1f6fb2"
+base = "light"
+
+[server]
+# Tolère des fichiers volumineux à l'upload (Excel facultatif)
+maxUploadSize = 50

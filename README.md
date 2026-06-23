@@ -76,6 +76,33 @@ streamlit run app.py
 ```
 
 L'application s'ouvre sur http://localhost:8501.
+Si `streamlit` n'est pas dans le PATH : `python -m streamlit run app.py`.
+
+---
+
+## ☁️ Déploiement (Streamlit Community Cloud)
+
+> ⚠️ **Vercel / Netlify ne conviennent pas** : ce sont des plateformes
+> *serverless* (fonctions sans état), alors que Streamlit est un **serveur
+> persistant** (WebSocket). Utilisez une plateforme qui héberge un serveur.
+
+Déploiement gratuit en quelques clics :
+
+1. Aller sur [share.streamlit.io](https://share.streamlit.io) et se connecter
+   avec GitHub.
+2. **New app** → dépôt `DAJYO/Palualert`, branche `main`, fichier principal
+   `app.py`.
+3. **Deploy**. Les dépendances de [`requirements.txt`](requirements.txt) et le
+   paquet système de [`packages.txt`](packages.txt) (Chromium, pour les exports
+   PNG/PDF) sont installés automatiquement.
+
+Le dépôt contient déjà les données et les modèles : l'application est
+fonctionnelle immédiatement après déploiement. Les exports PNG/PDF reposent sur
+Chromium installé via `packages.txt` ; en cas d'indisponibilité, l'application
+continue de fonctionner et affiche un message clair (dégradation propre).
+
+Autres hébergeurs adaptés (serveur persistant) : Hugging Face Spaces, Render,
+Railway.
 
 ---
 
