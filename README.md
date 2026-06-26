@@ -14,7 +14,9 @@ calculés sur l'historique.
 ## ✨ Fonctionnalités
 
 - **Accueil** — vue d'ensemble et indicateurs clés.
-- **Charger un fichier** — import facultatif (Excel) et diagnostic des données.
+- **Charger un fichier** — modèle de saisie téléchargeable (Excel/CSV, 33 districts
+  pré-remplis), import **validé** (colonnes, districts, dates, bornes, doublons) et
+  mise à jour du panel, + diagnostic des données.
 - **Exploration des données** — tableau pivot (date × districts) et séries temporelles.
 - **Carte des risques** — choroplèthe des 33 districts (légende, synthèse, source),
   variable au choix, **export PNG**.
@@ -41,6 +43,7 @@ PaluAlert/
     ├── features.py         # Ingénierie des variables
     ├── thresholds.py       # Seuils épidémiques + niveau de risque
     ├── pipeline.py         # Orchestration (preparer)
+    ├── data_validation.py  # Modèle de saisie + validation des imports
     ├── forecast_2026.py    # Projection récursive au-delà des données
     ├── export_utils.py     # Export PNG des figures (kaleido)
     ├── report_pdf.py       # Génération du rapport PDF (fpdf2)
