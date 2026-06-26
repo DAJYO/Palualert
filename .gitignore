@@ -15,6 +15,9 @@ _geo_tmp/
 # Sorties générées
 data/prevision_*.csv
 
+# Claude Code (réglages personnels : hook d'auto-push)
+.claude/settings.local.json
+
 # OS / IDE
 .DS_Store
 Thumbs.db
