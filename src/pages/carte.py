@@ -5,6 +5,7 @@ par district sur un fond de carte. Si le GeoJSON des limites de district est
 absent, un repli (classement en barres) est proposé avec des instructions.
 """
 
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
@@ -151,6 +152,73 @@ def _ajouter_points(fig, points, colonne, est_cat, vmin, vmax):
             hoverinfo="text",
         )
     )
+
+
+def figure_niveau_risque(panel, P, annee, mois):
+    """Carte du niveau de risque pour un mois donné (ou None si indisponible).
+
+    Réutilisable par la page d'accueil. Inclut le marqueur des districts sans
+    polygone (ex. Mada) et la synthèse en sous-titre.
+    """
+    geojson = charger_geojson()
+    if geojson is None:
+        return None
+    districts = panel["district"].unique()
+    cle, correspondance = apparier_districts(geojson, districts)
+    if cle is None:
+        return None
+
+    snap = (
+        P[(P["date"].dt.year == annee) & (P["mois"] == mois)][["district", "niveau"]]
+        .drop_duplicates("district")
+        .copy()
+    )
+    if snap.empty or snap["niveau"].dropna().empty:
+        return None
+
+    snap["geo_id"] = snap["district"].map(correspondance)
+    points = snap[snap["district"].isin(config.DISTRICTS_POINTS)].dropna(
+        subset=["niveau"]
+    ).copy()
+    points["lat"] = points["district"].map(lambda d: config.DISTRICTS_POINTS[d]["lat"])
+    points["lon"] = points["district"].map(lambda d: config.DISTRICTS_POINTS[d]["lon"])
+
+    localises = snap[snap["geo_id"].notna() | snap["district"].isin(config.DISTRICTS_POINTS)]
+    vc = localises["niveau"].value_counts()
+    sous_titre = " · ".join(f"{n} : {int(vc[n])}" for n in ORDRE_NIVEAUX if vc.get(n, 0))
+    titre = f"Niveau de risque — {MOIS_FR[mois]} {annee}"
+
+    fig = _carte(
+        geojson, cle, snap.dropna(subset=["geo_id"]), "niveau", True,
+        titre, "Niveau de risque", sous_titre,
+    )
+    _ajouter_points(fig, points, "niveau", True, None, None)
+    return fig
+
+
+def carte_risque_courante(panel, P):
+    """(fig, annee, mois, comptes) pour le mois en cours, sinon le dernier dispo.
+
+    `fig` vaut None si la carte ne peut pas être construite (GeoJSON absent…).
+    `comptes` : nombre de districts par niveau pour le mois retenu.
+    """
+    dispo = P.dropna(subset=["niveau"])
+    dispo = dispo[dispo["niveau"] != "—"]
+    if dispo.empty:
+        return None, None, None, {}
+
+    today = pd.Timestamp.today()
+    courant = dispo[(dispo["date"].dt.year == today.year) & (dispo["mois"] == today.month)]
+    if not courant.empty:
+        annee, mois = int(today.year), int(today.month)
+    else:
+        dmax = dispo["date"].max()
+        annee, mois = int(dmax.year), int(dmax.month)
+
+    fig = figure_niveau_risque(panel, P, annee, mois)
+    sel = dispo[(dispo["date"].dt.year == annee) & (dispo["mois"] == mois)]
+    comptes = sel["niveau"].value_counts().to_dict()
+    return fig, annee, mois, comptes
 
 
 def render(panel, P, epi, alerte):
